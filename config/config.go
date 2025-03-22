@@ -1,17 +1,24 @@
 package config
 
+import (
+	"fmt"
+
+	"github.com/caarlos0/env/v11"
+)
+
 type Config struct {
-	AppID            string `json:"app_id"`
-	BootstrapServers string `json:"bootstrap_servers"`
-	TopicName        string `json:"topic_name"`
-	NumEvents        int    `json:"num_events"`
+	AppID            string   `json:"app_id" env:"APP_ID"`
+	BootstrapServers []string `json:"bootstrap_servers" env:"BOOTSTRAP_SERVERS"`
+	TopicName        string   `json:"topic_name" env:"TOPIC_NAME"`
+	NumEvents        int      `json:"num_events" env:"NUM_EVENTS"`
 }
 
-func New() *Config {
-	return &Config{
-		AppID:            "HelloProducer",
-		BootstrapServers: "localhost:9092;localhost:9093",
-		TopicName:        "hello-producer-topic",
-		NumEvents:        1_000_000,
+func GetDefault() (*Config, error) {
+	var cfg Config
+	err := env.Parse(&cfg)
+	if err != nil {
+		return &cfg, fmt.Errorf("failed to parse: %w", err)
 	}
+
+	return &cfg, nil
 }

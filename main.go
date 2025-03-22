@@ -1,21 +1,21 @@
 package main
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/feynmaz/kafkag/config"
-	"github.com/feynmaz/kafkag/confluent"
 	"github.com/feynmaz/kafkag/logger"
+	"github.com/feynmaz/kafkag/sarama"
 )
 
 func main() {
-	cfg := config.New()
-	fmt.Printf("%+v\n", cfg)
+	cfg, err := config.GetDefault()
+	if err != nil {
+		panic(err)
+	}
 
 	logger := logger.New()
+	logger.Info().Msgf("%+v\n", cfg)
 
-	producer, err := confluent.NewProducer(cfg, logger)
+	producer, err := sarama.NewProducer(cfg, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("failed to create producer")
 	}
@@ -26,8 +26,6 @@ func main() {
 	}
 	logger.Info().Msg("finished sending messages")
 
-	timeout := 2 * time.Second
-	logger.Info().Msg("closing producer in 2 seconds")
-	producer.Close(timeout)
+	_ = producer.Close()
 	logger.Info().Msg("finished closing producer")
 }
